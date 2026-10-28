@@ -44,3 +44,10 @@ jobs:
           name: dist
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  registry:
+    needs: publish
+    uses: ./.github/workflows/registry.yml
+    permissions:
+      contents: read
+      id-token: write

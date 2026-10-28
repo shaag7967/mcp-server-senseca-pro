@@ -1,0 +1,42 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.shaag7967/mcp-server-senseca-pro",
+  "title": "Senseca PRO thermometer",
+  "description": "Live readings from Senseca PRO 111/115 Pt100 thermometers via USB (unofficial)",
+  "repository": {
+    "url": "https://github.com/shaag7967/mcp-server-senseca-pro",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-server-senseca-pro",
+      "version": "0.1.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SENSECA_PORT",
+          "description": "Serial port of the instrument, e.g. /dev/ttyACM0 or COM3. Auto-detected if not set.",
+          "isRequired": false
+        },
+        {
+          "name": "SENSECA_PIN",
+          "description": "Instrument PIN, only needed if its protected mode is enabled",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "SENSECA_ALLOW_WRITE",
+          "description": "Set to 1 to enable tools that change instrument settings (clock, location labels)",
+          "isRequired": false,
+          "default": "0",
+          "choices": ["0", "1"]
+        }
+      ]
+    }
+  ]
+}
