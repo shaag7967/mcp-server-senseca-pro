@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-senseca-pro"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unofficial MCP server for Senseca PRO 111 / PRO 115 Pt100 thermometers"
 readme = "README.md"
 authors = [

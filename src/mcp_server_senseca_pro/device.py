@@ -38,6 +38,15 @@ TEMPERATURE_CHANNEL = (1, 1)
 # The serial interface relocks after 2 minutes without commands; resend the PIN before that.
 PIN_REFRESH_S = 90.0
 
+# Errors meaning the port itself is gone (e.g. USB unplugged). On POSIX pyserial lets
+# termios.error escape from buffer flushes; it is not an OSError subclass.
+try:
+    import termios
+
+    _PORT_ERRORS: tuple[type[BaseException], ...] = (serial.SerialException, OSError, termios.error)
+except ImportError:  # Windows
+    _PORT_ERRORS = (serial.SerialException, OSError)
+
 _RANGE_STATES = {"underflow", "overflow"}
 _DATETIME_RE = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(?:\.(\d+))?")
 
@@ -129,12 +138,12 @@ class Pro11x:
                     f"Instrument on {self._port} does not respond. Check that it is switched on; "
                     "if it is, unplug and reconnect the USB cable."
                 ) from e
-            except (serial.SerialException, OSError) as e:
+            except _PORT_ERRORS as e:
                 log.warning("Serial error (%s), reconnecting", e)
                 self._disconnect()
                 try:
                     return self._query_locked(command)
-                except (serial.SerialException, OSError) as e2:
+                except _PORT_ERRORS as e2:
                     self._disconnect()
                     raise DeviceError(f"Communication with {self._port} failed: {e2}") from e2
 
@@ -164,7 +173,7 @@ class Pro11x:
             log.info("Opening %s", self._port)
             try:
                 self._conn = self._opener(self._port)
-            except (serial.SerialException, OSError) as e:
+            except _PORT_ERRORS as e:
                 raise DeviceNotFoundError(f"Cannot open {self._port}: {e}") from e
             self._last_command = None
         return self._conn

@@ -97,6 +97,25 @@ def test_reconnects_once_after_serial_error(fake):
     assert len(opened) == 2
 
 
+def test_reconnects_after_termios_error(fake):
+    # Unplugging USB on Linux makes tcflush() raise termios.error, which is not an OSError.
+    termios = pytest.importorskip("termios")
+
+    class Unplugged:
+        def reset_input_buffer(self):
+            raise termios.error(5, "Input/output error")
+
+        def reset_output_buffer(self):
+            pass
+
+        def close(self):
+            pass
+
+    connections = iter([Unplugged(), fake])
+    device = Pro11x("/dev/fake", opener=lambda port: next(connections))
+    assert device.temperature().value == 22.63
+
+
 def test_timeout_without_reply(fake):
     fake.read_until = lambda *a, **k: b"22.6"
     device = Pro11x("/dev/fake", opener=lambda port: fake)
