@@ -85,8 +85,10 @@ uv run pytest                                   # tests use a simulated instrume
 npx @modelcontextprotocol/inspector uv run mcp-server-senseca-pro   # try the tools interactively
 ```
 
-The serial protocol is described in [docs/protocol.md](docs/protocol.md).
+The serial protocol is described in [docs/protocol.md](https://github.com/shaag7967/mcp-server-senseca-pro/blob/main/docs/protocol.md).
 
 ## License
 
 MIT
+
+<!-- mcp-name: io.github.shaag7967/mcp-server-senseca-pro -->

@@ -39,7 +39,7 @@ TEMPERATURE_CHANNEL = (1, 1)
 PIN_REFRESH_S = 90.0
 
 _RANGE_STATES = {"underflow", "overflow"}
-_DATETIME_RE = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?)")
+_DATETIME_RE = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(?:\.(\d+))?")
 
 
 class DeviceError(Exception):
@@ -235,7 +235,9 @@ class Pro11x:
         m = _DATETIME_RE.search(text)
         if not m:
             raise DeviceError(f"Unexpected date/time reply: {text!r}")
-        return datetime.fromisoformat(m.group(1)).replace(tzinfo=timezone.utc)
+        # Pad the fraction ("08.55") to microseconds; Python 3.10 only parses 3 or 6 digits.
+        fraction = (m.group(2) or "").ljust(6, "0")[:6]
+        return datetime.fromisoformat(f"{m.group(1)}.{fraction}").replace(tzinfo=timezone.utc)
 
     def set_datetime(self, when: datetime) -> list[str]:
         utc = when.astimezone(timezone.utc) if when.tzinfo else when
