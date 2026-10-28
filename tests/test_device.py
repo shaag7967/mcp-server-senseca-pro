@@ -3,7 +3,14 @@ from datetime import datetime, timezone
 import pytest
 import serial
 
-from mcp_server_senseca_pro.device import CommandError, DeviceError, OutOfRangeError, Pro11x
+from mcp_server_senseca_pro.device import (
+    CommandError,
+    DeviceError,
+    OutOfRangeError,
+    PinRequiredError,
+    Pro11x,
+    find_port,
+)
 
 
 def test_temperature(device):
@@ -121,3 +128,31 @@ def test_timeout_without_reply(fake):
     device = Pro11x("/dev/fake", opener=lambda port: fake)
     with pytest.raises(DeviceError, match="Timeout"):
         device.temperature()
+
+
+def test_locked_without_pin(locked):
+    device = Pro11x("/dev/fake", opener=lambda port: locked)
+    with pytest.raises(PinRequiredError, match="set SENSECA_PIN"):
+        device.temperature()
+
+
+def test_locked_with_pin(locked):
+    device = Pro11x("/dev/fake", pin="0", opener=lambda port: locked)
+    assert device.temperature().value == 22.63
+
+
+class _Port:
+    device = "/dev/ttyACM7"
+    vid = 0x0483
+    pid = 0x5740
+
+
+def test_find_port_sends_pin(locked, monkeypatch):
+    monkeypatch.setattr("mcp_server_senseca_pro.device.list_ports.comports", lambda: [_Port()])
+    assert find_port(lambda port: locked, pin="0000") == "/dev/ttyACM7"
+
+
+def test_find_port_reports_missing_pin(locked, monkeypatch):
+    monkeypatch.setattr("mcp_server_senseca_pro.device.list_ports.comports", lambda: [_Port()])
+    with pytest.raises(PinRequiredError):
+        find_port(lambda port: locked)

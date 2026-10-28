@@ -46,6 +46,13 @@ channel numbers. This server does not use the command.
 
 ## Protected mode
 
-When the instrument's PIN protection is on, `setPINCode: nnnn` (always four digits) must be
-sent first. The interface locks again after 2 minutes without commands. Not yet tested
-against a real instrument.
+When the instrument's PIN protection is on, every command is answered with
+
+```
+error: enter PIN with command "setPINCode: 0000" with your PIN for 0000 first!
+```
+
+(the `0000` in the text is literal, not the actual PIN). `setPINCode: nnnn` (always four
+digits) answers `OK` and unlocks the interface. According to the manual it locks again after
+2 minutes without commands; the driver resends the PIN after 90 s of inactivity. Tested on a
+PRO 111 with PIN 0000, including a read after 130 s idle.

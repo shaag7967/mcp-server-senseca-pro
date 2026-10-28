@@ -34,11 +34,18 @@ RECORDED = {
 }
 
 
-class FakeSerial:
-    """Stands in for serial.Serial and answers like the instrument."""
+LOCKED_REPLY = 'error: enter PIN with command "setPINCode: 0000" with your PIN for 0000 first!'
 
-    def __init__(self, replies: dict[str, str]):
+
+class FakeSerial:
+    """Stands in for serial.Serial and answers like the instrument.
+
+    With ``pin`` set it behaves like an instrument in protected mode.
+    """
+
+    def __init__(self, replies: dict[str, str], pin: str | None = None):
         self.replies = dict(replies)
+        self.pin = pin
         self.sent: list[str] = []
         self.closed = False
         self._pending = b""
@@ -46,7 +53,13 @@ class FakeSerial:
     def write(self, data: bytes) -> int:
         command = data.decode().removesuffix("\r\n")
         self.sent.append(command)
-        reply = self.replies.get(command, "error: parameter or index out of range")
+        if self.pin and command == f"setPINCode: {self.pin}":
+            self.pin = None
+            reply = "OK"
+        elif self.pin:
+            reply = LOCKED_REPLY
+        else:
+            reply = self.replies.get(command, "error: parameter or index out of range")
         self._pending = reply.encode() + b"\r\n\r\n"
         return len(data)
 
@@ -72,3 +85,8 @@ def fake() -> FakeSerial:
 @pytest.fixture
 def device(fake: FakeSerial) -> Pro11x:
     return Pro11x("/dev/fake", opener=lambda port: fake)
+
+
+@pytest.fixture
+def locked() -> FakeSerial:
+    return FakeSerial(RECORDED, pin="0000")

@@ -63,6 +63,10 @@ class CommandError(DeviceError):
     """The instrument answered with ``error: ...``."""
 
 
+class PinRequiredError(CommandError):
+    """The instrument is in protected mode and did not accept the command without a valid PIN."""
+
+
 class OutOfRangeError(DeviceError):
     """The instrument reported Underflow/Overflow, e.g. no probe connected."""
 
@@ -163,13 +167,18 @@ class Pro11x:
         lines = [line.strip() for line in raw.decode("utf-8", errors="replace").splitlines()]
         lines = [line for line in lines if line]
         if lines and lines[0].lower().startswith("error:"):
-            raise CommandError(f"{command!r}: {lines[0][6:].strip()}")
+            message = lines[0][6:].strip()
+            # Locked reply: 'error: enter PIN with command "setPINCode: 0000" with your PIN for 0000 first!'
+            if "setpincode" in message.lower():
+                hint = "check SENSECA_PIN" if self._pin else "set SENSECA_PIN to the instrument's PIN"
+                raise PinRequiredError(f"Instrument is PIN protected and not unlocked: {hint}.")
+            raise CommandError(f"{command!r}: {message}")
         return lines
 
     def _connect(self) -> SerialLike:
         if self._conn is None:
             if self._port is None:
-                self._port = find_port(self._opener)
+                self._port = find_port(self._opener, self._pin)
             log.info("Opening %s", self._port)
             try:
                 self._conn = self._opener(self._port)
@@ -260,8 +269,12 @@ class Pro11x:
         return self.query(f"updateLocation: {index}, {name}")
 
 
-def find_port(opener: Opener = _open_serial) -> str:
-    """Return the first serial port that answers like a Senseca instrument."""
+def find_port(opener: Opener = _open_serial, pin: str | None = None) -> str:
+    """Return the first serial port that answers like a Senseca instrument.
+
+    A PinRequiredError is passed on as is: the reply proves it is a Senseca
+    instrument, and its message tells the user what to fix.
+    """
     candidates = [p.device for p in list_ports.comports() if p.vid == USB_VID and p.pid == USB_PID]
     if not candidates:
         raise DeviceNotFoundError(
@@ -270,12 +283,14 @@ def find_port(opener: Opener = _open_serial) -> str:
         )
     problems = []
     for device in candidates:
-        probe = Pro11x(device, opener=opener)
+        probe = Pro11x(device, pin=pin, opener=opener)
         try:
             manufacturer = probe.manufacturer()
             if manufacturer.lower() == "senseca":
                 return device
             problems.append(f"{device}: manufacturer is {manufacturer!r}")
+        except PinRequiredError:
+            raise
         except DeviceError as e:
             problems.append(str(e))
         finally:
