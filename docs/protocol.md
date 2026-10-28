@@ -52,7 +52,8 @@ When the instrument's PIN protection is on, every command is answered with
 error: enter PIN with command "setPINCode: 0000" with your PIN for 0000 first!
 ```
 
-(the `0000` in the text is literal, not the actual PIN). `setPINCode: nnnn` (always four
+(only observed with PIN 0000, so it is unknown whether the text shows the actual PIN or is
+fixed). `setPINCode: nnnn` (always four
 digits) answers `OK` and unlocks the interface. According to the manual it locks again after
 2 minutes without commands; the driver resends the PIN after 90 s of inactivity. Tested on a
 PRO 111 with PIN 0000, including a read after 130 s idle.
