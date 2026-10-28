@@ -36,6 +36,14 @@ Values are left-padded with spaces. Instead of a number the reply can be `Underf
 | `GetCalibrationReport: 1` | `error: not available` |
 | `GetDeviceInformation: 0` | several `Key: value` lines, keys and values sometimes in quotes |
 
+## Known firmware problem
+
+`GetCalibrationReport: 2` (a channel that does not exist) returned no reply and the instrument
+froze: it accepted no more serial data and could not be switched off with the ON/OFF key
+until the batteries were removed. `GetCalibrationReport: 0` correctly answers
+`error: parameter or index out of range`. Do not send `GetCalibrationReport` with invalid
+channel numbers. This server does not use the command.
+
 ## Protected mode
 
 When the instrument's PIN protection is on, `setPINCode: nnnn` (always four digits) must be
