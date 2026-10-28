@@ -1,0 +1,32 @@
+[project]
+name = "mcp-server-senseca-pro"
+version = "0.1.0"
+description = "Unofficial MCP server for Senseca PRO 111 / PRO 115 Pt100 thermometers"
+readme = "README.md"
+authors = [
+    { name = "shaag7967", email = "shaag@gmx.net" }
+]
+requires-python = ">=3.10"
+license = "MIT"
+keywords = ["mcp", "senseca", "pt100", "thermometer", "serial"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "mcp>=2.3.0",
+    "pyserial>=3.5",
+]
+
+[project.scripts]
+mcp-server-senseca-pro = "mcp_server_senseca_pro:main"
+
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

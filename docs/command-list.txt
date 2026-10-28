@@ -1,0 +1,41 @@
+supported commands are:
+-----
+GetDeviceIdentification: 0 will return the device identification
+-----
+GetDeviceType: 0 will return the device type
+-----
+GetDeviceManufacturer: 0 will return the device manufacturer
+-----
+GetLastValue: n(, m) will report the latest measured value of a channel.
+n is the channel index, optional m is the sub-channel index.
+Example:"GetLastValue: 1"
+"GetLastValue: 3, 2"
+-----
+GetFullResolutionValue: n(, m) will report the latest measured value of a channel in full resolution.
+n is the channel index, optional m is the sub-channel index.
+Example:"GetFullResolutionValue: 1"
+"GetFullResolutionValue: 3, 2"
+-----
+GetChannelUnit: n(, m) will report the unit of a channel.
+n is the channel index, optional m is the sub-channel index.
+Example:"GetChannelUnit: 1"
+"GetChannelUnit: 3, 2"
+-----
+GetCalibrationReport: # will report the latest calibration data of a channel.
+Example: "GetCalibrationReport: 1"
+# is the channel index.
+-----
+SetDateTime: yyyy-MM-dd HH:mm:ss sets the current time and date in timezone UTC
+Example: "SetDateTime: 2023-01-31 12:51:00"
+-----
+GetDateTime: 0 gets the current time and date in timezone UTC
+-----
+GetDeviceInformation: 0 reports device specific parameters like firmware version ...
+Example: "DeviceInformation: 0"
+-----
+updateLocation: n, 'Text' will update the location description at index n with the content 'Text' that has a maximum length of 16 characters and a maximum of 20 locations.
+Example: "updateLocation: 12, Laboratory 22a"
+-----
+GetCommandList: 0 Reports all supported CLI commands
+Example: "GetCommandList: 0"
+
