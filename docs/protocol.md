@@ -16,7 +16,7 @@ the transport; the command list comes from `GetCommandList: 0` (full text in
 
 | Channel | Unit | Meaning |
 |---|---|---|
-| `0` | `%` | presumably battery level (reads 100.0 on USB power) |
+| `0` | `%` | battery level; reads 0.0 with batteries removed, also while powered via USB |
 | `1` | `ohm` | Pt100 resistance |
 | `1, 1` | `°C` (or the unit set on the instrument) | temperature |
 
