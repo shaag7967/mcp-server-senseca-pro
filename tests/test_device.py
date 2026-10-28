@@ -63,6 +63,15 @@ def test_pin_sent_before_first_command(fake):
     assert fake.sent.count("setPINCode: 0023") == 1
 
 
+def test_pin_sent_shortly_after_boot(fake, monkeypatch):
+    # time.monotonic() counts from system start, so it can be small on a fresh machine.
+    monkeypatch.setattr("mcp_server_senseca_pro.device.time.monotonic", lambda: 5.0)
+    fake.replies["setPINCode: 0023"] = "OK"
+    device = Pro11x("/dev/fake", pin="23", opener=lambda port: fake)
+    device.temperature()
+    assert fake.sent[0] == "setPINCode: 0023"
+
+
 def test_reconnects_once_after_serial_error(fake):
     opened = []
 

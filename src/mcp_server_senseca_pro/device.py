@@ -99,7 +99,7 @@ class Pro11x:
         self._opener = opener
         self._conn: SerialLike | None = None
         self._lock = threading.Lock()
-        self._last_command = 0.0
+        self._last_command: float | None = None  # monotonic time, None = nothing sent yet
 
     @property
     def port(self) -> str | None:
@@ -140,7 +140,7 @@ class Pro11x:
 
     def _query_locked(self, command: str) -> list[str]:
         conn = self._connect()
-        if self._pin and time.monotonic() - self._last_command > PIN_REFRESH_S:
+        if self._pin and (self._last_command is None or time.monotonic() - self._last_command > PIN_REFRESH_S):
             self._exchange(conn, f"setPINCode: {self._pin}")
         return self._exchange(conn, command)
 
@@ -166,7 +166,7 @@ class Pro11x:
                 self._conn = self._opener(self._port)
             except (serial.SerialException, OSError) as e:
                 raise DeviceNotFoundError(f"Cannot open {self._port}: {e}") from e
-            self._last_command = 0.0
+            self._last_command = None
         return self._conn
 
     def _disconnect(self) -> None:
