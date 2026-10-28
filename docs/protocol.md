@@ -38,11 +38,19 @@ Values are left-padded with spaces. Instead of a number the reply can be `Underf
 
 ## Known firmware problem
 
-`GetCalibrationReport: 2` (a channel that does not exist) returned no reply and the instrument
-froze: it accepted no more serial data and could not be switched off with the ON/OFF key
-until the batteries were removed. `GetCalibrationReport: 0` correctly answers
-`error: parameter or index out of range`. Do not send `GetCalibrationReport` with invalid
-channel numbers. This server does not use the command.
+`GetCalibrationReport: 2` (a channel that does not exist) returns no reply and the instrument
+freezes completely:
+
+- the serial interface accepts no more data (writes time out)
+- the display stops updating, the backlight stays on, the status LED is off
+- no key works, including ON/OFF; unplugging USB changes nothing
+- only removing the batteries (with USB unplugged) recovers it
+
+`GetCalibrationReport: 0` correctly answers `error: parameter or index out of range` and
+`GetCalibrationReport: 1` answers `error: not available`. Reproduced twice on a PRO 111 with
+firmware V1.4.3.0, the second time as a single command right after a power cycle.
+Do not send `GetCalibrationReport` with invalid channel numbers. This server does not use the
+command.
 
 ## Protected mode
 
