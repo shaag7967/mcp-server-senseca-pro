@@ -85,6 +85,15 @@ uv run pytest                                   # tests use a simulated instrume
 npx @modelcontextprotocol/inspector uv run mcp-server-senseca-pro   # try the tools interactively
 ```
 
+To check a real instrument, connect it and run:
+
+```bash
+uv run python scripts/hardware_test.py               # read-only checks, no interaction
+uv run python scripts/hardware_test.py --reconnect   # also unplug/replug USB when asked
+```
+
+The script only sends read commands. See `--help` for the PIN test.
+
 The serial protocol is described in [docs/protocol.md](https://github.com/shaag7967/mcp-server-senseca-pro/blob/main/docs/protocol.md).
 
 ## License
